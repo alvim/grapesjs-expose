@@ -1,6 +1,6 @@
 {
   "name": "grapesjs-plugin-expose",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GrapesJS plugin to expose data on global scope",
   "main": "dist/grapesjs-expose.min.js",
   "scripts": {
