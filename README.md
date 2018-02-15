@@ -12,7 +12,7 @@ This plugin adds the possibility to expose data on a global variable.
 
 ## Download
 
-* `npm i grapesjs-plugin-export`
+* `npm i grapesjs-plugin-expose`
 
 ## Usage
 
