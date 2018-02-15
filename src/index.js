@@ -5,8 +5,6 @@ export default grapesjs.plugins.add('grapesjs-expose', (editor, opts = {}) => {
     target: 'xGrapes'
   },  ...opts };
 
-  console.log('Exposing variables...');
-
   const getExposedObj = () => {
     const domc = editor.DomComponents;
     const comps = domc.getComponents();
@@ -16,32 +14,58 @@ export default grapesjs.plugins.add('grapesjs-expose', (editor, opts = {}) => {
       comps.models.forEach(model => {
         const { expose } = model.attributes;
         if (!expose) return null
-        exposedObj = {
-          ...exposedObj,
-          ...expose
-        };
-      })
+        exposedObj = Object.assign(exposedObj, expose);
+      });
     });
 
-    return exposedObj;
+    const objIsEmpty = Object.keys(exposedObj).length === 0;
+    return objIsEmpty ? false : exposedObj;
+  };
+
+  let replacer = (key, value) => {
+    // if we get a function, give us the code for that function  
+    if (typeof value === 'function') {
+      return value.toString().replace(/"/g, '\\"');
+    }
+
+    return value;
   };
 
   const updateExpose = model => {
-    console.log(model);
-    const stop = !model || model.attributes['data-id'] === 'grapes-expose-container';
+    const dataId = 'grapes-expose-container';
+    const stop = !model || model.attributes['data-id'] === dataId;
     if (stop) return null
 
-    const exposedObj = getExposedObj();
-    console.log('changing:', exposedObj);
+    const currentComponent = editor.DomComponents
+                              .getComponents().models
+                              .find(item => item.attributes['data-id'] === dataId);
 
-    editor.DomComponents.addComponent({
-      'data-id': 'grapes-expose-container',
-      tagName: 'script',
-      removable: false, // Can't remove it
-      draggable: false, // Can't move it
-      copyable: false, // Disable copy/past
-      content: `window.${options.target} = ${JSON.stringify(exposedObj)};` // Text inside component
-    });
+    if (currentComponent) currentComponent.destroy();
+    
+    const exposedObj = getExposedObj();
+    if (exposedObj) {
+      const exposedObjStr = JSON.stringify(exposedObj, replacer, 2).replace(/\n/g, '');
+  
+      editor.DomComponents.addComponent({
+        'data-id': 'grapes-expose-container',
+        tagName: 'script',
+        removable: false, // Can't remove it
+        draggable: false, // Can't move it
+        copyable: false, // Disable copy/past
+        content: `
+          var grapesReviver = function(key, value) {
+            if (typeof value === 'string' && value.indexOf('function') === 0) {
+              var functionTemplate = '(' + value + ')';    
+              return eval(functionTemplate);
+            }
+            return value;
+          };
+  
+          window.${options.target}Str = '${ exposedObjStr }';
+          window.${options.target} = JSON.parse(window.${options.target}Str, grapesReviver);
+          `
+      });
+    }
   };
 
   editor.on('load component:add component:remove', updateExpose)
