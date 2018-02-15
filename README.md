@@ -4,7 +4,7 @@ This plugin adds the possibility to expose data on a global variable.
 
 ## Sumary
 
-* Plugin name: `gjs-plugin-expose`
+* Plugin name: `grapesjs-expose`
 
 ## Options
 
@@ -25,9 +25,9 @@ This plugin adds the possibility to expose data on a global variable.
 <script type="text/javascript">
   var editor = grapesjs.init({
       container : '#gjs',
-      plugins: ['gjs-plugin-expose'],
+      plugins: ['grapesjs-expose'],
       pluginsOpts: {
-        'gjs-plugin-expose': {
+        'grapesjs-expose': {
           target: 'YOUR_CUSTOM_PROPERTY' // Default: "xGrapes"
         }
       }
