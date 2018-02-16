@@ -1,6 +1,6 @@
 import grapesjs from 'grapesjs';
 
-export default grapesjs.plugins.add('grapesjs-expose', (editor, opts = {}) => {
+export default grapesjs.plugins.add('grapesjs-plugin-expose', (editor, opts = {}) => {
   const options = { ...{
     target: 'xGrapes'
   },  ...opts };
